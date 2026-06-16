@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-Trade Checklist — TPTraders</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#0a0b0d;--bg1:#0f1114;--bg2:#151820;--bg3:#1c2030;
+  --text0:#e8eaf0;--text1:#c8cad4;--text2:#8892a4;--text3:#455060;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.10);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.10);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,0.10);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.10);
+  --violet:#a78bfa;--violet-dim:rgba(167,139,250,0.10);
+  --border:rgba(255,255,255,0.055);
+  --accent:#a78bfa;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg0);color:var(--text0);font-family:'IBM Plex Sans',sans-serif;}
+
+/* TOPBAR */
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:48px;background:var(--bg1);border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;z-index:100;}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.2em;color:var(--accent);}
+.logo em{color:var(--text3);font-style:normal;font-weight:400;}
+.hub-link{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:0.1em;display:flex;align-items:center;gap:5px;transition:color 0.15s;}
+.hub-link:hover{color:var(--accent);}
+
+/* LAYOUT */
+#page{max-width:820px;margin:0 auto;padding:72px 24px 48px;}
+
+/* MODE SELECTOR */
+#mode-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 48px);gap:24px;text-align:center;}
+.mode-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:480px;}
+.mode-card{background:var(--bg1);border:1px solid var(--border);border-radius:6px;padding:28px 24px;cursor:pointer;transition:all 0.18s;text-align:left;position:relative;overflow:hidden;}
+.mode-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;transition:opacity 0.18s;}
+.mode-card.swing::before{background:var(--violet);}
+.mode-card.day::before{background:var(--amber);}
+.mode-card:hover{border-color:var(--text3);transform:translateY(-2px);}
+.mode-card.swing:hover{border-color:var(--violet);}
+.mode-card.day:hover{border-color:var(--amber);}
+.mode-icon{font-size:28px;margin-bottom:12px;display:block;}
+.mode-name{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;letter-spacing:0.05em;margin-bottom:6px;}
+.mode-card.swing .mode-name{color:var(--violet);}
+.mode-card.day .mode-name{color:var(--amber);}
+.mode-desc{font-size:11px;color:var(--text3);line-height:1.6;}
+.mode-tfs{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.15em;color:var(--text3);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+
+/* CHECKLIST PAGE */
+#checklist-page{display:none;}
+.cl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.cl-mode-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;padding:5px 12px;border-radius:3px;cursor:pointer;}
+.cl-mode-badge.swing{color:var(--violet);background:var(--violet-dim);border:1px solid rgba(167,139,250,0.2);}
+.cl-mode-badge.day{color:var(--amber);background:var(--amber-dim);border:1px solid rgba(245,158,11,0.2);}
+.cl-mode-badge:hover{opacity:0.7;}
+.cl-title{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--text0);letter-spacing:0.05em;}
+
+/* TRADE INPUTS */
+.inputs-card{background:var(--bg1);border:1px solid var(--border);border-radius:4px;padding:18px 20px;margin-bottom:20px;}
+.inputs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+@media(max-width:600px){.inputs-grid{grid-template-columns:1fr 1fr;}}
+.inp-group{display:flex;flex-direction:column;gap:5px;}
+.inp-label{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);}
+.inp-field{background:var(--bg0);border:1px solid var(--border);border-radius:3px;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text0);outline:none;transition:border-color 0.15s;width:100%;}
+.inp-field:focus{border-color:var(--accent);}
+.inp-field::placeholder{color:var(--text3);}
+.dir-toggle{display:flex;gap:0;}
+.dir-btn{flex:1;padding:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;border:1px solid var(--border);background:var(--bg0);color:var(--text3);cursor:pointer;transition:all 0.15s;}
+.dir-btn:first-child{border-radius:3px 0 0 3px;border-right:none;}
+.dir-btn:last-child{border-radius:0 3px 3px 0;}
+.dir-btn.active.long{background:var(--green-dim);color:var(--green);border-color:rgba(34,197,94,0.3);}
+.dir-btn.active.short{background:var(--red-dim);color:var(--red);border-color:rgba(239,68,68,0.3);}
+.type-toggle{display:flex;gap:0;}
+.type-btn{flex:1;padding:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;border:1px solid var(--border);background:var(--bg0);color:var(--text3);cursor:pointer;transition:all 0.15s;}
+.type-btn:first-child{border-radius:3px 0 0 3px;border-right:none;}
+.type-btn:last-child{border-radius:0 3px 3px 0;}
+.type-btn.active{background:var(--violet-dim);color:var(--violet);border-color:rgba(167,139,250,0.3);}
+
+/* SECTIONS */
+.cl-section{margin-bottom:16px;}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--text3);}
+.section-header::after{content:'';flex:1;height:1px;background:var(--border);}
+.section-tf{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);background:var(--bg2);padding:2px 7px;border-radius:2px;flex-shrink:0;}
+
+/* CHECK ITEMS */
+.check-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg1);border:1px solid var(--border);border-radius:3px;margin-bottom:6px;cursor:pointer;transition:all 0.12s;user-select:none;}
+.check-item:hover{border-color:var(--text3);}
+.check-item.checked{border-color:rgba(34,197,94,0.25);background:rgba(34,197,94,0.04);}
+.check-item.checked-no{border-color:rgba(239,68,68,0.25);background:rgba(239,68,68,0.04);}
+.check-item.critical{border-left:3px solid var(--amber);}
+.check-item.critical.checked{border-left-color:var(--green);}
+.check-item.critical.checked-no{border-left-color:var(--red);}
+.check-box{width:20px;height:20px;border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;transition:all 0.12s;background:var(--bg0);}
+.check-item.checked .check-box{background:var(--green);border-color:var(--green);color:#000;}
+.check-item.checked-no .check-box{background:var(--red);border-color:var(--red);color:#fff;}
+.check-text{flex:1;}
+.check-main{font-size:12px;color:var(--text1);line-height:1.4;}
+.check-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);margin-top:2px;}
+.check-weight{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:1px 5px;border-radius:2px;color:var(--amber);background:var(--amber-dim);flex-shrink:0;}
+.check-yn{display:flex;gap:4px;flex-shrink:0;}
+.yn-btn{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;border-radius:2px;border:1px solid var(--border);background:var(--bg0);color:var(--text3);cursor:pointer;transition:all 0.12s;}
+.yn-btn.y.active{background:var(--green-dim);color:var(--green);border-color:rgba(34,197,94,0.3);}
+.yn-btn.n.active{background:var(--red-dim);color:var(--red);border-color:rgba(239,68,68,0.3);}
+
+/* SCORE / VERDICT */
+#verdict-card{background:var(--bg1);border:1px solid var(--border);border-radius:4px;padding:20px;margin-top:20px;display:none;}
+.verdict-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:16px;}
+.verdict-score-wrap{display:flex;align-items:baseline;gap:6px;}
+.verdict-score{font-family:'IBM Plex Mono',monospace;font-size:52px;font-weight:700;line-height:1;}
+.verdict-denom{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--text3);}
+.verdict-label{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;letter-spacing:0.1em;padding:6px 14px;border-radius:3px;}
+.verdict-label.go{color:var(--green);background:var(--green-dim);border:1px solid rgba(34,197,94,0.25);}
+.verdict-label.caution{color:var(--amber);background:var(--amber-dim);border:1px solid rgba(245,158,11,0.25);}
+.verdict-label.nogo{color:var(--red);background:var(--red-dim);border:1px solid rgba(239,68,68,0.25);}
+.score-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:16px;}
+.score-fill{height:100%;border-radius:3px;transition:width 0.4s ease;}
+.missing-list{border-top:1px solid var(--border);padding-top:14px;}
+.missing-label{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.missing-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2);padding:4px 0;}
+.missing-dot{width:4px;height:4px;border-radius:50%;background:var(--red);flex-shrink:0;}
+.missing-dot.warn{background:var(--amber);}
+
+/* ACTION BUTTONS */
+.action-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:9px 16px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all 0.15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;}
+.btn.primary:hover{opacity:0.85;}
+.btn.reset{border-color:var(--text3);}
+.btn.reset:hover{border-color:var(--red);color:var(--red);}
+
+/* RISK CALC */
+.risk-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+@media(max-width:500px){.risk-row{grid-template-columns:1fr 1fr;}}
+.risk-item{background:var(--bg2);border-radius:3px;padding:10px 12px;}
+.risk-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+.risk-val{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--text0);}
+
+.disc{font-size:10px;color:var(--text3);text-align:center;padding:24px 0 8px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<header id="topbar">
+  <div class="logo">PRE<em>/</em>TRADE</div>
+  <a class="hub-link" href="https://cbell0920.github.io/tptraders-hub" target="_blank">&#8592; Hub</a>
+</header>
+
+<!-- MODE SELECTION SCREEN -->
+<div id="mode-screen">
+  <div>
+    <div class="mode-title">TPTraders &mdash; Pre-Trade Checklist</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:4px;">Select your trade type to begin</div>
+  </div>
+  <div class="mode-cards">
+    <div class="mode-card swing" onclick="selectMode('swing')">
+      <span class="mode-icon">📈</span>
+      <div class="mode-name">SWING</div>
+      <div class="mode-desc">Multi-day to multi-week holds. Trend pullback entries.</div>
+      <div class="mode-tfs">HTF: M / W / D &nbsp;&middot;&nbsp; ENTRY: D → 4H → 1H</div>
+    </div>
+    <div class="mode-card day" onclick="selectMode('day')">
+      <span class="mode-icon">⚡</span>
+      <div class="mode-name">DAY TRADE</div>
+      <div class="mode-desc">Intraday. In and out same session.</div>
+      <div class="mode-tfs">HTF: M / W / D &nbsp;&middot;&nbsp; ENTRY: 4H → 1H → 15M</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKLIST PAGE -->
+<div id="checklist-page">
+<div id="page">
+
+  <!-- HEADER -->
+  <div class="cl-header">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="mode-badge" class="cl-mode-badge swing" onclick="resetMode()" title="Change mode">SWING ▾</span>
+      <span class="cl-title">Pre-Trade Checklist</span>
+    </div>
+    <button class="btn reset" onclick="resetChecklist()">&#8635; NEW TRADE</button>
+  </div>
+
+  <!-- TRADE INPUTS -->
+  <div class="inputs-card">
+    <div class="inputs-grid">
+      <div class="inp-group">
+        <label class="inp-label">Ticker</label>
+        <input class="inp-field" id="inp-ticker" type="text" placeholder="AAPL" maxlength="6" oninput="this.value=this.value.toUpperCase();calcRisk()">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Direction</label>
+        <div class="dir-toggle">
+          <button class="dir-btn long active" id="dir-long" onclick="setDir('long')">LONG</button>
+          <button class="dir-btn short" id="dir-short" onclick="setDir('short')">SHORT</button>
+        </div>
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Entry Price</label>
+        <input class="inp-field" id="inp-entry" type="number" placeholder="0.00" step="0.01" oninput="calcRisk()">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Stop (pattern)</label>
+        <input class="inp-field" id="inp-stop" type="number" placeholder="0.00" step="0.01" oninput="calcRisk()">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Account Size</label>
+        <input class="inp-field" id="inp-account" type="number" placeholder="10000" oninput="calcRisk()">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Risk Per Trade</label>
+        <input class="inp-field" id="inp-risk-pct" type="number" placeholder="1" step="0.1" value="1" oninput="calcRisk()">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Trade Type</label>
+        <div class="type-toggle">
+          <button class="type-btn active" id="type-equity" onclick="setType('equity')">EQUITY</button>
+          <button class="type-btn" id="type-options" onclick="setType('options')">OPTIONS</button>
+        </div>
+      </div>
+      <div class="inp-group" id="contracts-group" style="display:none;">
+        <label class="inp-label">Contracts</label>
+        <input class="inp-field" id="inp-contracts" type="number" placeholder="1" min="1" oninput="calcRisk()">
+      </div>
+    </div>
+    <!-- Risk output -->
+    <div class="risk-row" id="risk-row">
+      <div class="risk-item"><div class="risk-lbl">Risk / Share</div><div class="risk-val" id="r-per-share">&mdash;</div></div>
+      <div class="risk-item"><div class="risk-lbl">Max $ Risk</div><div class="risk-val" id="r-max-dollar">&mdash;</div></div>
+      <div class="risk-item"><div class="risk-lbl">Shares / Contracts</div><div class="risk-val" id="r-size">&mdash;</div></div>
+    </div>
+  </div>
+
+  <!-- HTF CONTEXT — always required -->
+  <div class="cl-section">
+    <div class="section-header">
+      <span class="section-label">HTF Context</span>
+      <span class="section-tf">M / W / D — always first</span>
+    </div>
+
+    <div class="check-item critical" id="ci-monthly-trend" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-monthly-trend"></div>
+      <div class="check-text">
+        <div class="check-main">Monthly trend is clear</div>
+        <div class="check-sub">Price side of Monthly 20/50/200 EMA confirms direction</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'monthly-trend',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'monthly-trend',false)">N</button>
+      </div>
+      <span class="check-weight">CRITICAL</span>
+    </div>
+
+    <div class="check-item critical" id="ci-weekly-trend" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-weekly-trend"></div>
+      <div class="check-text">
+        <div class="check-main">Weekly trend aligned with Monthly</div>
+        <div class="check-sub">Weekly 20/50/200 EMA stacked in same direction</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'weekly-trend',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'weekly-trend',false)">N</button>
+      </div>
+      <span class="check-weight">CRITICAL</span>
+    </div>
+
+    <div class="check-item critical" id="ci-daily-trend" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-daily-trend"></div>
+      <div class="check-text">
+        <div class="check-main">Daily trend aligned</div>
+        <div class="check-sub">Daily 20/50/200 EMA confirm trend direction, price on correct side</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'daily-trend',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'daily-trend',false)">N</button>
+      </div>
+      <span class="check-weight">CRITICAL</span>
+    </div>
+
+    <div class="check-item" id="ci-htf-level" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-htf-level"></div>
+      <div class="check-text">
+        <div class="check-main">Key HTF level identified</div>
+        <div class="check-sub">Clear S/R, supply/demand zone, or confluent MA level on Daily or above</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'htf-level',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'htf-level',false)">N</button>
+      </div>
+    </div>
+
+    <div class="check-item" id="ci-htf-momentum" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-htf-momentum"></div>
+      <div class="check-text">
+        <div class="check-main">HTF momentum not overextended</div>
+        <div class="check-sub">Price not too far from Daily 20/50 EMA — extended moves reduce reward</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'htf-momentum',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'htf-momentum',false)">N</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTRY TIMEFRAME — changes by mode -->
+  <div class="cl-section" id="entry-section">
+    <div class="section-header">
+      <span class="section-label">Entry Timeframe</span>
+      <span class="section-tf" id="entry-tf-label">D → 4H</span>
+    </div>
+
+    <div class="check-item critical" id="ci-entry-tf-align" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-entry-tf-align"></div>
+      <div class="check-text">
+        <div class="check-main" id="entry-tf-main">Daily + 4H EMAs aligned with trade direction</div>
+        <div class="check-sub" id="entry-tf-sub">20/50/200 EMA stack confirms on both timeframes</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'entry-tf-align',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'entry-tf-align',false)">N</button>
+      </div>
+      <span class="check-weight">CRITICAL</span>
+    </div>
+
+    <div class="check-item critical" id="ci-pullback" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-pullback"></div>
+      <div class="check-text">
+        <div class="check-main">Valid pullback to key level</div>
+        <div class="check-sub">Price has pulled back to EMA, S/R, or demand zone — not chasing</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'pullback',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'pullback',false)">N</button>
+      </div>
+      <span class="check-weight">CRITICAL</span>
+    </div>
+
+    <div class="check-item critical" id="ci-pattern" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-pattern"></div>
+      <div class="check-text">
+        <div class="check-main">Valid candlestick pattern at level</div>
+        <div class="check-sub">Reversal or continuation pattern present at the key level — location matters</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'pattern',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'pattern',false)">N</button>
+      </div>
+      <span class="check-weight">CRITICAL</span>
+    </div>
+
+    <div class="check-item" id="ci-confirmation" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-confirmation"></div>
+      <div class="check-text">
+        <div class="check-main" id="confirm-main">4H or 1H confirms entry direction</div>
+        <div class="check-sub" id="confirm-sub">Lower timeframe shows momentum shift, break of structure, or EMA cross</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'confirmation',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'confirmation',false)">N</button>
+      </div>
+    </div>
+
+    <div class="check-item" id="ci-volume" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-volume"></div>
+      <div class="check-text">
+        <div class="check-main">Volume supports the move</div>
+        <div class="check-sub">Above-average volume on the signal candle or breaking candle</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'volume',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'volume',false)">N</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RISK MANAGEMENT -->
+  <div class="cl-section">
+    <div class="section-header">
+      <span class="section-label">Risk Management</span>
+    </div>
+
+    <div class="check-item critical" id="ci-stop-defined" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-stop-defined"></div>
+      <div class="check-text">
+        <div class="check-main">Stop loss defined — below/above pattern candle</div>
+        <div class="check-sub">Stop price entered above. Invalidation level is clear before entry</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'stop-defined',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'stop-defined',false)">N</button>
+      </div>
+      <span class="check-weight">CRITICAL</span>
+    </div>
+
+    <div class="check-item critical" id="ci-rr" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-rr"></div>
+      <div class="check-text">
+        <div class="check-main">R:R is at least 2:1</div>
+        <div class="check-sub">Target identified — reward is at least 2x the distance to stop</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'rr',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'rr',false)">N</button>
+      </div>
+      <span class="check-weight">CRITICAL</span>
+    </div>
+
+    <div class="check-item" id="ci-size" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-size"></div>
+      <div class="check-text">
+        <div class="check-main">Position size within risk rules</div>
+        <div class="check-sub">Max dollar risk calculated above — size confirmed before entry</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'size',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'size',false)">N</button>
+      </div>
+    </div>
+
+    <div class="check-item" id="ci-news" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-news"></div>
+      <div class="check-text">
+        <div class="check-main">No major binary events before target</div>
+        <div class="check-sub">Earnings, Fed, or major macro event won't blow through stop before target hit</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'news',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'news',false)">N</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTEXT CHECK -->
+  <div class="cl-section">
+    <div class="section-header">
+      <span class="section-label">Market Context</span>
+    </div>
+
+    <div class="check-item" id="ci-regime" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-regime"></div>
+      <div class="check-text">
+        <div class="check-main">Market regime supports the trade</div>
+        <div class="check-sub">EQ Brief regime + SPY/QQQ bias aligns with direction</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'regime',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'regime',false)">N</button>
+      </div>
+    </div>
+
+    <div class="check-item" id="ci-vix" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-vix"></div>
+      <div class="check-text">
+        <div class="check-main">VIX not in extreme regime</div>
+        <div class="check-sub">VIX below 25 for longs, or VIX spike supports short bias</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'vix',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'vix',false)">N</button>
+      </div>
+    </div>
+
+    <div class="check-item" id="ci-emotional" onclick="toggleItem(this)">
+      <div class="check-box" id="cb-emotional"></div>
+      <div class="check-text">
+        <div class="check-main">Not trading emotionally</div>
+        <div class="check-sub">Not revenge trading, FOMO, or recovering a loss — setup found me, I didn't force it</div>
+      </div>
+      <div class="check-yn">
+        <button class="yn-btn y" onclick="setYN(event,'emotional',true)">Y</button>
+        <button class="yn-btn n" onclick="setYN(event,'emotional',false)">N</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERDICT -->
+  <div id="verdict-card">
+    <div class="verdict-row">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">CHECKLIST SCORE</div>
+        <div class="verdict-score-wrap">
+          <span class="verdict-score" id="v-score">0</span>
+          <span class="verdict-denom">/100</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">VERDICT</div>
+        <span class="verdict-label go" id="v-label">GO</span>
+      </div>
+    </div>
+    <div class="score-bar"><div class="score-fill" id="v-bar"></div></div>
+    <div class="missing-list" id="v-missing"></div>
+    <div class="action-row">
+      <a class="btn primary" id="btn-options-calc" href="https://cbell0920.github.io/options-calculator" target="_blank">&#9654; OPTIONS CALC ↗</a>
+      <button class="btn" onclick="copyTradeLog()">&#128203; COPY TRADE LOG</button>
+      <button class="btn reset" onclick="resetChecklist()">&#8635; NEW TRADE</button>
+    </div>
+  </div>
+
+  <div class="disc">Pre-Trade Checklist &mdash; TPTraders &mdash; Not financial advice &mdash; Your discipline is your edge</div>
+</div>
+</div>
+
+<script>
+var _mode = 'swing';
+var _dir = 'long';
+var _type = 'equity';
+
+// All check items with weights and whether they are critical
+var ITEMS = [
+  {id:'monthly-trend', label:'Monthly trend clear (M EMA)', critical:true, weight:12},
+  {id:'weekly-trend',  label:'Weekly trend aligned (W EMA)', critical:true, weight:12},
+  {id:'daily-trend',   label:'Daily trend aligned (D EMA)', critical:true, weight:12},
+  {id:'htf-level',     label:'Key HTF level identified', critical:false, weight:6},
+  {id:'htf-momentum',  label:'HTF not overextended from MAs', critical:false, weight:4},
+  {id:'entry-tf-align',label:'Entry TF EMAs aligned', critical:true, weight:10},
+  {id:'pullback',      label:'Valid pullback to key level', critical:true, weight:10},
+  {id:'pattern',       label:'Valid candlestick pattern at level', critical:true, weight:10},
+  {id:'confirmation',  label:'Lower TF entry confirmation', critical:false, weight:6},
+  {id:'volume',        label:'Volume supports the move', critical:false, weight:4},
+  {id:'stop-defined',  label:'Stop loss defined (pattern candle)', critical:true, weight:8},
+  {id:'rr',            label:'R:R at least 2:1', critical:true, weight:8},
+  {id:'size',          label:'Position size within risk rules', critical:false, weight:4},
+  {id:'news',          label:'No binary events before target', critical:false, weight:4},
+  {id:'regime',        label:'Market regime supports trade', critical:false, weight:4},
+  {id:'vix',           label:'VIX not extreme', critical:false, weight:3},
+  {id:'emotional',     label:'Not trading emotionally', critical:false, weight:3},
+];
+
+var _state = {}; // id -> true/false/null
+
+function selectMode(mode){
+  _mode = mode;
+  document.getElementById('mode-screen').style.display = 'none';
+  document.getElementById('checklist-page').style.display = 'block';
+  updateModeUI();
+}
+
+function updateModeUI(){
+  var badge = document.getElementById('mode-badge');
+  badge.className = 'cl-mode-badge ' + _mode;
+  badge.textContent = (_mode === 'swing' ? 'SWING' : 'DAY TRADE') + ' ▾';
+
+  if(_mode === 'swing'){
+    document.getElementById('entry-tf-label').textContent = 'D → 4H → 1H';
+    document.getElementById('entry-tf-main').textContent = 'Daily + 4H EMAs aligned with trade direction';
+    document.getElementById('entry-tf-sub').textContent = '20/50/200 EMA stack confirms on both timeframes';
+    document.getElementById('confirm-main').textContent = '4H or 1H confirms entry direction';
+    document.getElementById('confirm-sub').textContent = 'Lower timeframe shows momentum shift, break of structure, or EMA cross';
+  } else {
+    document.getElementById('entry-tf-label').textContent = '4H → 1H → 15M';
+    document.getElementById('entry-tf-main').textContent = '4H + 1H EMAs aligned with trade direction';
+    document.getElementById('entry-tf-sub').textContent = '20/50/200 EMA stack on both timeframes — 15M for final trigger';
+    document.getElementById('confirm-main').textContent = '1H + 15M confirm entry — 2 TF confirmation required';
+    document.getElementById('confirm-sub').textContent = 'Both 1H and 15M show momentum shift or structure break in direction';
+  }
+}
+
+function resetMode(){
+  document.getElementById('checklist-page').style.display = 'none';
+  document.getElementById('mode-screen').style.display = 'flex';
+  resetChecklist();
+}
+
+function setDir(d){
+  _dir = d;
+  document.getElementById('dir-long').className = 'dir-btn long' + (d==='long'?' active':'');
+  document.getElementById('dir-short').className = 'dir-btn short' + (d==='short'?' active':'');
+}
+
+function setType(t){
+  _type = t;
+  document.getElementById('type-equity').className = 'type-btn' + (t==='equity'?' active':'');
+  document.getElementById('type-options').className = 'type-btn' + (t==='options'?' active':'');
+  document.getElementById('contracts-group').style.display = t==='options'?'block':'none';
+  calcRisk();
+}
+
+function setYN(e, id, val){
+  e.stopPropagation();
+  _state[id] = val;
+  var ci = document.getElementById('ci-'+id);
+  var cb = document.getElementById('cb-'+id);
+  var btns = ci.querySelectorAll('.yn-btn');
+  btns[0].className = 'yn-btn y' + (val===true?' active':'');
+  btns[1].className = 'yn-btn n' + (val===false?' active':'');
+  ci.className = ci.className.replace(' checked','').replace(' checked-no','');
+  if(val===true) ci.className += ' checked';
+  else if(val===false) ci.className += ' checked-no';
+  cb.textContent = val===true ? '✓' : val===false ? '✕' : '';
+  updateVerdict();
+}
+
+function toggleItem(el){
+  // clicking the row without Y/N buttons just focuses — handled by YN buttons
+}
+
+function calcRisk(){
+  var entry = parseFloat(document.getElementById('inp-entry').value)||0;
+  var stop  = parseFloat(document.getElementById('inp-stop').value)||0;
+  var acct  = parseFloat(document.getElementById('inp-account').value)||0;
+  var riskPct = parseFloat(document.getElementById('inp-risk-pct').value)||1;
+
+  var riskPerShare = Math.abs(entry - stop);
+  var maxDollar = acct * (riskPct/100);
+
+  document.getElementById('r-per-share').textContent = riskPerShare > 0 ? '$' + riskPerShare.toFixed(2) : '—';
+  document.getElementById('r-max-dollar').textContent = maxDollar > 0 ? '$' + maxDollar.toFixed(0) : '—';
+
+  if(riskPerShare > 0 && maxDollar > 0){
+    if(_type === 'equity'){
+      var shares = Math.floor(maxDollar / riskPerShare);
+      document.getElementById('r-size').textContent = shares + ' shares';
+    } else {
+      var contracts = Math.floor(maxDollar / (riskPerShare * 100));
+      document.getElementById('r-size').textContent = Math.max(1,contracts) + ' contracts';
+    }
+  } else {
+    document.getElementById('r-size').textContent = '—';
+  }
+
+  // Update options calc link with ticker and price
+  var ticker = document.getElementById('inp-ticker').value;
+  var calcUrl = 'https://cbell0920.github.io/options-calculator';
+  if(ticker && entry > 0) calcUrl += '?ticker='+ticker+'&price='+entry;
+  document.getElementById('btn-options-calc').href = calcUrl;
+}
+
+function updateVerdict(){
+  var answered = Object.keys(_state).filter(function(k){ return _state[k] !== null && _state[k] !== undefined; });
+  if(answered.length < 5){
+    document.getElementById('verdict-card').style.display = 'none';
+    return;
+  }
+
+  // Score
+  var totalWeight = 0, earnedWeight = 0;
+  var missingCritical = [], missingNice = [];
+  ITEMS.forEach(function(item){
+    totalWeight += item.weight;
+    var v = _state[item.id];
+    if(v === true) earnedWeight += item.weight;
+    else if(v === false || v === undefined || v === null){
+      if(v === false){
+        if(item.critical) missingCritical.push(item.label);
+        else missingNice.push(item.label);
+      }
+    }
+  });
+
+  var score = Math.round((earnedWeight / totalWeight) * 100);
+  var hasCriticalFail = missingCritical.length > 0;
+  var verdict, vClass, barColor;
+
+  if(hasCriticalFail || score < 50){
+    verdict = 'NO-GO'; vClass = 'nogo'; barColor = '#ef4444';
+  } else if(score < 75){
+    verdict = 'CAUTION'; vClass = 'caution'; barColor = '#f59e0b';
+  } else {
+    verdict = 'GO'; vClass = 'go'; barColor = '#22c55e';
+  }
+
+  document.getElementById('v-score').textContent = score;
+  document.getElementById('v-score').style.color = barColor;
+  document.getElementById('v-bar').style.width = score + '%';
+  document.getElementById('v-bar').style.background = barColor;
+  var vl = document.getElementById('v-label');
+  vl.textContent = verdict;
+  vl.className = 'verdict-label ' + vClass;
+
+  // Missing items
+  var missingHTML = '';
+  if(missingCritical.length || missingNice.length){
+    missingHTML += '<div class="missing-label">What\'s missing</div>';
+    missingCritical.forEach(function(m){
+      missingHTML += '<div class="missing-item"><div class="missing-dot"></div>' + m + ' <span style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:var(--red);margin-left:4px;">CRITICAL</span></div>';
+    });
+    missingNice.forEach(function(m){
+      missingHTML += '<div class="missing-item"><div class="missing-dot warn"></div>' + m + '</div>';
+    });
+  } else if(score === 100){
+    missingHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:var(--green);padding:4px 0;">&#10003; All checks passed — full conviction setup</div>';
+  }
+  document.getElementById('v-missing').innerHTML = missingHTML;
+  document.getElementById('verdict-card').style.display = 'block';
+}
+
+function copyTradeLog(){
+  var ticker = document.getElementById('inp-ticker').value || '—';
+  var entry  = document.getElementById('inp-entry').value || '—';
+  var stop   = document.getElementById('inp-stop').value || '—';
+  var score  = document.getElementById('v-score').textContent;
+  var verdict = document.getElementById('v-label').textContent;
+  var size   = document.getElementById('r-size').textContent;
+  var maxRisk = document.getElementById('r-max-dollar').textContent;
+  var now    = new Date().toUTCString().replace(' GMT','') + ' UTC';
+
+  var log = [
+    '=== PRE-TRADE CHECKLIST === ' + now,
+    'Ticker: ' + ticker + '  |  Mode: ' + _mode.toUpperCase() + '  |  Direction: ' + _dir.toUpperCase() + '  |  Type: ' + _type.toUpperCase(),
+    'Entry: ' + entry + '  |  Stop: ' + stop + '  |  Size: ' + size + '  |  Max Risk: ' + maxRisk,
+    'Score: ' + score + '/100  |  Verdict: ' + verdict,
+    '',
+    'CHECKS:'
+  ];
+  ITEMS.forEach(function(item){
+    var v = _state[item.id];
+    var mark = v===true ? '[Y]' : v===false ? '[N]' : '[ ]';
+    log.push(mark + ' ' + item.label + (item.critical?' *':''));
+  });
+  log.push('');
+  log.push('* = Critical check');
+
+  navigator.clipboard.writeText(log.join('\n')).then(function(){
+    var btn = document.querySelector('.btn[onclick="copyTradeLog()"]');
+    var orig = btn.textContent;
+    btn.textContent = '✓ COPIED';
+    setTimeout(function(){ btn.textContent = orig; }, 1800);
+  }).catch(function(){
+    alert(log.join('\n'));
+  });
+}
+
+function resetChecklist(){
+  _state = {};
+  _dir = 'long';
+  _type = 'equity';
+  setDir('long');
+  setType('equity');
+  ['inp-ticker','inp-entry','inp-stop','inp-account','inp-risk-pct'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = id==='inp-risk-pct'?'1':'';
+  });
+  document.getElementById('r-per-share').textContent = '—';
+  document.getElementById('r-max-dollar').textContent = '—';
+  document.getElementById('r-size').textContent = '—';
+  document.getElementById('verdict-card').style.display = 'none';
+  ITEMS.forEach(function(item){
+    var ci = document.getElementById('ci-'+item.id);
+    var cb = document.getElementById('cb-'+item.id);
+    if(ci){ ci.className = ci.className.replace(' checked','').replace(' checked-no',''); }
+    if(cb){ cb.textContent = ''; }
+    var btns = ci ? ci.querySelectorAll('.yn-btn') : [];
+    btns.forEach(function(b){ b.className = b.className.replace(' active',''); });
+  });
+}
+</script>
+</body>
+</html>
